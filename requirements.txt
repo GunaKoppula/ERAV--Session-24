@@ -1,0 +1,3 @@
+torch
+kivy==2.2.1
+python==2.7.18
