@@ -25,8 +25,8 @@ from ai import Dqn
 # Adding this line if we don't want the right click to put a red point
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Config.set('graphics', 'resizable', False)
-Config.set('graphics', 'width', '1034')
-Config.set('graphics', 'height', '529')
+Config.set('graphics', 'width', '1090')
+Config.set('graphics', 'height', '510')
 
 # Introducing last_x and last_y, used to keep the last point in memory when we draw the sand on the map
 last_x = 0
@@ -35,11 +35,11 @@ n_points = 0
 length = 0
 
 # Getting our AI, which we call "brain", and that contains our neural network that represents our Q-function
-brain = Dqn(5,3,1.9)
+brain = Dqn(5,3,0.95)
 action2rotation = [0,5,-5]
 last_reward = 0
 scores = []
-im = CoreImage(r"C:\Users\gunak\OneDrive\Desktop\ERV1\session24\car_game\images\MASK1.png")
+im = CoreImage(r"C:\Users\gunak\OneDrive\Desktop\ERV1\session24\car_game\images\MASK1.PNG")
 
 # textureMask = CoreImage(source="./kivytest/simplemask1.png")
 
@@ -54,8 +54,8 @@ def init():
     sand = np.zeros((longueur,largeur))
     img = PILImage.open(r"C:\Users\gunak\OneDrive\Desktop\ERV1\session24\car_game\images\mask.png").convert('L')
     sand = np.asarray(img)/255
-    goal_x = 1025
-    goal_y = 487
+    goal_x = 89
+    goal_y = 170
     first_update = False
     global swap
     swap = 0
@@ -110,6 +110,12 @@ class Ball2(Widget):
     pass
 class Ball3(Widget):
     pass
+class Goal1(Widget):
+    pass
+class Goal2(Widget):
+    pass
+class Goal3(Widget):
+    pass
 
 # Creating the game class
 
@@ -119,6 +125,9 @@ class Game(Widget):
     ball1 = ObjectProperty(None)
     ball2 = ObjectProperty(None)
     ball3 = ObjectProperty(None)
+    goal1 = ObjectProperty(None)
+    goal2 = ObjectProperty(None)
+    goal3 = ObjectProperty(None)
 
     def serve_car(self):
         self.car.center = self.center
@@ -154,42 +163,46 @@ class Game(Widget):
         self.ball1.pos = self.car.sensor1
         self.ball2.pos = self.car.sensor2
         self.ball3.pos = self.car.sensor3
+        self.goal1.pos = (89,170)
+        self.goal2.pos = (1125,417)
+        self.goal3.pos = (1200,92)
 
         if sand[int(self.car.x),int(self.car.y)] > 0:
             self.car.velocity = Vector(0.5, 0).rotate(self.car.angle)
             print(1, goal_x, goal_y, distance, int(self.car.x),int(self.car.y), im.read_pixel(int(self.car.x),int(self.car.y)))
-            
-            last_reward = -1
+            #print(1, sand[int(self.car.x),int(self.car.y)])
+            last_reward = -0.8
         else: # otherwise
-            self.car.velocity = Vector(2, 0).rotate(self.car.angle)
-            last_reward = -0.2
+            self.car.velocity = Vector(1.0, 0).rotate(self.car.angle)
+            last_reward =  -0.1
             print(0, goal_x, goal_y, distance, int(self.car.x),int(self.car.y), im.read_pixel(int(self.car.x),int(self.car.y)))
+            #print(0, sand[int(self.car.x),int(self.car.y)])
             if distance < last_distance:
-                last_reward = 0.1
-            # else:
-            #     last_reward = last_reward +(-0.2)
+                last_reward = 0.8
+
 
         if self.car.x < 5:
             self.car.x = 5
-            last_reward = -1
+            last_reward = -0.5
         if self.car.x > self.width - 5:
             self.car.x = self.width - 5
-            last_reward = -1
+            last_reward = -0.5
         if self.car.y < 5:
             self.car.y = 5
-            last_reward = -1
+            last_reward = -0.5
         if self.car.y > self.height - 5:
             self.car.y = self.height - 5
-            last_reward = -1
+            last_reward = -0.5
 
         if distance < 25:
             if swap == 1:
-                goal_x = 1025
-                goal_y = 487
+                goal_x, goal_y = self.goal3.pos
+                swap = 2
+            elif swap == 2:
+                goal_x, goal_y = self.goal1.pos
                 swap = 0
             else:
-                goal_x = 9
-                goal_y = 85
+                goal_x, goal_y = self.goal2.pos
                 swap = 1
         last_distance = distance
 
